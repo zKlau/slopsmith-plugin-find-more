@@ -1,13 +1,13 @@
 # Slopsmith Plugin: Find More Songs
 
-A plugin for [Slopsmith](https://github.com/byrongamatos/slopsmith) that searches [CustomsForge](https://ignition4.customsforge.com/) for more songs by an artist and shows you more songs to add to your collection.
+A plugin for [Slopsmith](https://github.com/byrongamatos/slopsmith) that searches [CustomsForge](https://ignition4.customsforge.com/) for more songs by an artist or song name and shows you more songs to add to your collection.
 
 Search results are powered by [RSPlaylist](https://rsplaylist.com/search/) and do not require a CustomsForge account.
-
 
 ## Features
 
 - **Artist search** — find all available CDLC on CustomsForge for any artist
+- **Song name search** — find any song on CustomsForge by title (supports partial matches)
 - **Ownership tracking** — songs you already have are marked as **Owned**, the rest as **Available**
 - **Filter results** — toggle between All, Available, and Owned
 - **Song details** — tuning, paths (Lead/Rhythm/Bass/Vocals), download count, and last updated date
@@ -23,8 +23,6 @@ Search results are powered by [RSPlaylist](https://rsplaylist.com/search/) and d
 
 <img width="1012" height="653" alt="find more 3" src="https://github.com/user-attachments/assets/f6ed3c82-8867-49aa-a537-24811432392c" />
 
-
-
 ## Installation
 
 ```bash
@@ -36,9 +34,10 @@ docker compose restart
 ## How It Works
 
 1. Click **[find more]** next to any artist name in the library, or open **Find More** from the Plugins dropdown
-2. The plugin queries RSPlaylist's public API for all CDLC by that artist
-3. Results are compared against your local library to show what you already own
-4. Click any Available row to open its CustomsForge page for download
+2. Choose a search mode: **Artist** (exact match) or **Song Name** (substring match)
+3. The plugin queries RSPlaylist's public API for matching CDLC
+4. Results are compared against your local library to show what you already own
+5. Click any Available row to open its CustomsForge page for download
 
 ## Known Issues
 
@@ -56,5 +55,3 @@ No additional dependencies — uses only Python standard library modules.
 ## License
 
 MIT
-
-

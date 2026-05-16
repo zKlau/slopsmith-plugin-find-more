@@ -9,32 +9,40 @@ def setup(app, context):
     meta_db = context["meta_db"]
 
     @app.get("/api/plugins/find_more/search")
-    def search_artist(artist: str):
-        # Fetch all songs for the artist from RSPlaylist
+    def search(query: str, mode: str = "artist"):
+        # Fetch songs from RSPlaylist
         url = ("https://rsplaylist.com/api/search.php?search="
-               + urllib.parse.quote(artist))
+               + urllib.parse.quote(query))
         req = urllib.request.Request(url)
         with urllib.request.urlopen(req, timeout=15) as resp:
             remote_songs = json.loads(resp.read())
 
-        # Filter to only results matching the requested artist (case-insensitive)
-        artist_lower = artist.strip().lower()
-        remote_songs = [
-            s for s in remote_songs
-            if s.get("artist", "").lower() == artist_lower
-        ]
+        # Filter based on search mode
+        query_lower = query.strip().lower()
+        if mode == "song":
+            # Search by song title
+            remote_songs = [
+                s for s in remote_songs
+                if query_lower in s.get("title", "").lower()
+            ]
+        else:
+            # Default: search by artist (exact match)
+            remote_songs = [
+                s for s in remote_songs
+                if s.get("artist", "").lower() == query_lower
+            ]
 
-        # Get local songs by this artist
-        rows = meta_db.conn.execute(
-            "SELECT title FROM songs WHERE artist COLLATE NOCASE = ?",
-            (artist.strip(),),
+        # Get local songs to compare ownership
+        local_results = meta_db.conn.execute(
+            "SELECT LOWER(title), LOWER(artist) FROM songs"
         ).fetchall()
-
-        local_titles = {row[0].lower() for row in rows}
+        local_songs = {(row[0], row[1]) for row in local_results}
 
         # Build results: mark each remote song as owned or not
         results = []
         for s in remote_songs:
+            title_lower = s.get("title", "").lower()
+            artist_lower = s.get("artist", "").lower()
             results.append({
                 "title": s.get("title", ""),
                 "artist": s.get("artist", ""),
@@ -46,14 +54,15 @@ def setup(app, context):
                 "downloads": s.get("downloads", 0),
                 "cdlc_id": s.get("cdlc_id"),
                 "updated": s.get("updated"),
-                "owned": s.get("title", "").lower() in local_titles,
+                "owned": (title_lower, artist_lower) in local_songs,
             })
 
         # Sort: not-owned first, then by newest updated
         results.sort(key=lambda r: (r["owned"], -(r["updated"] or 0)))
 
         return {
-            "artist": artist.strip(),
+            "query": query.strip(),
+            "mode": mode,
             "total": len(results),
             "owned": sum(1 for r in results if r["owned"]),
             "available": sum(1 for r in results if not r["owned"]),

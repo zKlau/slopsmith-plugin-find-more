@@ -86,6 +86,25 @@
         } catch (e) { /* ignore */ }
     }
 
+    window.fmSetMode = function (mode) {
+        fmSearchMode = mode;
+        fmUpdateModeButtons();
+    };
+
+    function fmUpdateModeButtons() {
+        const artistBtn = document.getElementById('fm-mode-artist');
+        const songBtn = document.getElementById('fm-mode-song');
+        if (fmSearchMode === 'artist') {
+            artistBtn.className = 'px-3 py-1 rounded-lg text-xs transition bg-accent text-white';
+            songBtn.className = 'px-3 py-1 rounded-lg text-xs transition bg-dark-600 text-gray-400 hover:bg-dark-500';
+            document.getElementById('fm-query').placeholder = 'Enter artist name...';
+        } else {
+            artistBtn.className = 'px-3 py-1 rounded-lg text-xs transition bg-dark-600 text-gray-400 hover:bg-dark-500';
+            songBtn.className = 'px-3 py-1 rounded-lg text-xs transition bg-accent text-white';
+            document.getElementById('fm-query').placeholder = 'Enter song name...';
+        }
+    }
+
     window.fmSearch = async function () {
         const query = document.getElementById('fm-query').value.trim();
         if (!query) return;
@@ -145,25 +164,6 @@
         }
         fmRender();
     };
-
-    window.fmSetMode = function (mode) {
-        fmSearchMode = mode;
-        fmUpdateModeButtons();
-    };
-
-    function fmUpdateModeButtons() {
-        const artistBtn = document.getElementById('fm-mode-artist');
-        const songBtn = document.getElementById('fm-mode-song');
-        if (fmSearchMode === 'artist') {
-            artistBtn.className = 'px-3 py-1 rounded-lg text-xs transition bg-accent text-white';
-            songBtn.className = 'px-3 py-1 rounded-lg text-xs transition bg-dark-600 text-gray-400 hover:bg-dark-500';
-            document.getElementById('fm-query').placeholder = 'Enter artist name...';
-        } else {
-            artistBtn.className = 'px-3 py-1 rounded-lg text-xs transition bg-dark-600 text-gray-400 hover:bg-dark-500';
-            songBtn.className = 'px-3 py-1 rounded-lg text-xs transition bg-accent text-white';
-            document.getElementById('fm-query').placeholder = 'Enter song name...';
-        }
-    }
 
     function fmRender() {
         const container = document.getElementById('fm-results');
